@@ -33,10 +33,13 @@ export function getIMatchRowFrom(data: IMatch, pickTeams?: IPickTeam[]): IMatchR
     }
   }
 
+
+  const dates = data.date.split('T')[0].split('-')
+
   return {
     id: data.id,
     leagueName: data.match_title,
-    date: data.date.split('T')[0],
+    date: dates[1]+'-'+dates[2],
     time: times[0] + ':' + times[1],
     team1: {
       name: data.team1,

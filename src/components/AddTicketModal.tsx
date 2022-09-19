@@ -25,10 +25,12 @@ const AddTicketModal: React.FC<IBaseProps> = (props) => {
   const currentLeague = useCurrentLeagueStore((state) => state.league)
   const setCurrentLeague = useCurrentLeagueStore((state) => state.setLeague)
   const currentTicket = useCurrentTicketStore((state) => state.ticket)
+  const clearCurTicket = useCurrentTicketStore((state) => state.clear)
 
   const setCurrentTicket = useCurrentTicketStore((state) => state.setTicket)
 
   const [ticketMatches, setTicketMatches] = useState<IMatchRow[]>([])
+  const [remainCount, setRemainCount] = useState<number>(20)
 
   const [userName, setUserName] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -41,6 +43,7 @@ const AddTicketModal: React.FC<IBaseProps> = (props) => {
     let matchrows = currentLeague?.matches.map((one) => getIMatchRowFrom(one))
 
     if (currentTicket) {
+      setUserName(currentTicket.user_name)
       matchrows = matchrows?.map((match) => {
         let newMatch = { ...match }
         const pickTeams = getPickTeamsForMatchFrom(currentTicket, match.id)
@@ -58,21 +61,30 @@ const AddTicketModal: React.FC<IBaseProps> = (props) => {
         return newMatch
       })
     }
-    setTicketMatches(matchrows || [])
+    console.log({ matchrows })
+    setTicketMatches(matchrows)
   }, [currentLeague, currentTicket])
+
+  useEffect(() => {
+    setRemainCount(20 - getSelectedCount(ticketMatches))
+  }, [ticketMatches])
 
   const setIsOpen = useAddTicketModal((store) => store.setIsOpen)
   const onClose = () => {
     setUserName('')
+    clearCurTicket()
     setIsOpen(false)
   }
 
   const onSubmit = async () => {
     console.log('currentLeague', currentLeague)
 
-    const count = getSelectedCount(ticketMatches)
-    if (count < 20) {
-      alert('You can select ' + count + ' options more.')
+    if (remainCount > 0) {
+      alert('You can select ' + (20 - remainCount) + ' options more.')
+      return
+    }
+    if (remainCount < 0) {
+      alert('You selected more than 20 options.')
       return
     }
     if (!userName) {
@@ -113,9 +125,15 @@ const AddTicketModal: React.FC<IBaseProps> = (props) => {
       pickTeams: picks,
     }
 
-    const res: ITicket = await Api.addTicket(createTicket)
+    if (currentTicket) {
+      //* update
+      const res: ITicket = await Api.updateTicket(currentTicket.id, createTicket)
+      setCurrentTicket(res)
+    } else {
+      const res: ITicket = await Api.addTicket(createTicket)
 
-    setCurrentTicket(res)
+      setCurrentTicket(res)
+    }
 
     const newLeague: ILeague = await Api.getOneLeague(currentLeague!.id)
     setCurrentLeague(newLeague)
@@ -125,51 +143,62 @@ const AddTicketModal: React.FC<IBaseProps> = (props) => {
     onClose()
   }
 
-  const onTeamClick = (matchId: number, teamIndex: number) => {
-    let newMatches: IMatchRow[] = [...ticketMatches]
-    for (let i = 0; i < newMatches.length; i++) {
-      if (newMatches[i].id == matchId) {
-        switch (teamIndex) {
-          case 0:
-            newMatches[i].team1 = { ...newMatches[i].team1, selected: !newMatches[i].team1!.selected }
-            break
-          case 1:
-            newMatches[i].draw = { ...newMatches[i].draw, selected: !newMatches[i].draw!.selected }
-            break
-          case 2:
-            newMatches[i].team2 = { ...newMatches[i].team2, selected: !newMatches[i].team2!.selected }
-            break
+  const onTeamClick = (matchId: number, teamIndex: number, willSelect: boolean) => {
+      if (remainCount === undefined) return
+      console.log({ remainCount, willSelect })
+      if (remainCount <= 0 && willSelect) {
+        alert('Already selected all options')
+        return
+      }
+      let newMatches: IMatchRow[] = [...ticketMatches]
+      for (let i = 0; i < newMatches.length; i++) {
+        if (newMatches[i].id == matchId) {
+          switch (teamIndex) {
+            case 0:
+              newMatches[i].team1 = { ...newMatches[i].team1, selected: !newMatches[i].team1!.selected }
+              break
+            case 1:
+              newMatches[i].draw = { ...newMatches[i].draw, selected: !newMatches[i].draw!.selected }
+              break
+            case 2:
+              newMatches[i].team2 = { ...newMatches[i].team2, selected: !newMatches[i].team2!.selected }
+              break
+          }
         }
       }
-    }
-    if (getSelectedCount(newMatches) > 20) {
-      alert('Already all selected count is over 20')
-      return
-    } else {
+      console.log('onTeam click: ', ticketMatches)
       setTicketMatches(newMatches)
     }
-  }
 
   const getSelectedCount = (matches: IMatchRow[]) => {
     let count = 0
     for (let one of matches) {
-      if (one.team1?.selected) count++
-      if (one.team2?.selected) count++
-      if (one.draw?.selected) count++
+      if (one.team1?.selected) ++count
+      if (one.team2?.selected) ++count
+      if (one.draw?.selected) ++count
     }
     return count
   }
 
+  console.log({ ticketMatches })
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Add Ticket</ModalHeader>
+      <ModalContent bg={'#020a0f'} >
+        <ModalHeader>{currentTicket ? 'Edit' : 'Add'} Ticket</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody >
           <Stack my={5}>
             {!currentLeague && <Text>Please select current league or add new league first.</Text>}
-            <Input placeholder="User name" value={userName} onChange={(e) => setUserName(e.target.value)} />
+            <Text>Reamining count: {remainCount}</Text>
+            <Input
+              placeholder="User name"
+              size="sm"
+              rounded={5}
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+            />
             {ticketMatches.map((match, index) => {
               return (
                 <MatchRow key={'match_row_ticket_' + index} match={match} rowIndex={index} onTeamClick={onTeamClick} />
@@ -179,10 +208,10 @@ const AddTicketModal: React.FC<IBaseProps> = (props) => {
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onSubmit} isLoading={isLoading}>
+          <Button size={'sm'} colorScheme="blue" mr={3} onClick={onSubmit} isLoading={isLoading}>
             Submit
           </Button>
-          <Button variant="ghost" onClick={onClose}>
+          <Button colorScheme={'orange'} size={'sm'} onClick={onClose}>
             Close
           </Button>
         </ModalFooter>

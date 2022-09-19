@@ -16,13 +16,13 @@ import {
   Flex,
   Input,
 } from '@chakra-ui/react'
-import { useAddLeagueModal, useCurrentLeagueStore, useLeague } from '@src/store/store'
+import { useAddLeagueModal, useCurrentLeagueStore, useLeague, useLeagueItemsStore } from '@src/store/store'
 
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons'
 import MatchInputRow from './MatchInputRow'
 import { getICreateMatchFrom, IMatchRow } from '@src/interfaces/IMatchRow'
 import { TeamBox } from './TeamBox'
-import { ICreateLeague, ICreateMatch, ILeague } from '@src/interfaces'
+import { ICreateLeague, ICreateMatch, ILeague, ILeagueRes } from '@src/interfaces'
 import Api from '@src/services/api'
 
 const AddLeagueModal: React.FC<IBaseProps> = () => {
@@ -31,7 +31,7 @@ const AddLeagueModal: React.FC<IBaseProps> = () => {
   const matches = useLeague((store) => store.matches)
   const setMatches = useLeague((store) => store.setMatches)
   const setCurrentLeague = useCurrentLeagueStore((store) => store.setLeague)
-
+  const {leagueItems, setLeagueItems} = useLeagueItemsStore(state=>state)
   const [editIndex, setEditIndex] = useState<number>()
   const [leagueName, setLeagueName] = useState<string>()
 
@@ -56,11 +56,17 @@ const AddLeagueModal: React.FC<IBaseProps> = () => {
     }
 
     let data: ICreateLeague = {
-      name: leagueName || 'Default League Name ' + new Date().toLocaleDateString(),
+      name: leagueName || 'Default League Name ' + Date.now(),
       matches: matchList,
     }
 
     const league: ILeague = await Api.addLeague(data)
+    
+
+    const res: ILeagueRes = await Api.getLeagues(0, 100)
+    setLeagueItems(res.data)
+    
+
 
     setCurrentLeague(league);
     setIsLoading(false)
@@ -79,7 +85,7 @@ const AddLeagueModal: React.FC<IBaseProps> = () => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent bg={'#020a0f'}>
         <ModalHeader>Add League</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -87,6 +93,8 @@ const AddLeagueModal: React.FC<IBaseProps> = () => {
             <Input
               placeholder="League Name"
               value={leagueName}
+              size='sm'
+              rounded={5}
               onChange={(e) => {
                 setLeagueName(e.target.value)
               }}
@@ -133,7 +141,7 @@ const AddLeagueModal: React.FC<IBaseProps> = () => {
                           onEdit(index)
                         }}
                       >
-                        <EditIcon />
+                        <EditIcon color={'teal'}/>
                       </Button>
                       <Button
                         variant="link"
@@ -158,10 +166,10 @@ const AddLeagueModal: React.FC<IBaseProps> = () => {
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onSubmit} isLoading={isLoading}>
+          <Button size={'sm'} colorScheme="blue" mr={3} onClick={onSubmit} isLoading={isLoading}>
             Submit
           </Button>
-          <Button variant="ghost" onClick={onClose}>
+          <Button size={'sm'} variant='solid' colorScheme={'orange'} onClick={onClose}>
             Close
           </Button>
         </ModalFooter>

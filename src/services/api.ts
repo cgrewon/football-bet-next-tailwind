@@ -27,7 +27,7 @@ const Api = {
     return res.data
   },
   updateTicket: async (id: number, data: ICreateTicket): Promise<ITicket> => {
-    const res = await axios.post<ITicket>(APIHOST + '/ticket/' + id, data)
+    const res = await axios.patch<ITicket>(APIHOST + '/ticket/' + id, data)
     return res.data
   },
 

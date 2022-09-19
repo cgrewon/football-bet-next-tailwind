@@ -1,20 +1,27 @@
-import { Button, HStack, Select } from '@chakra-ui/react'
+import { Button, HStack, Select, Flex, Text, Box } from '@chakra-ui/react'
 import { ILeague, ILeagueRes } from '@src/interfaces'
 import IBaseProps from '@src/interfaces/IBaseProps'
 import Api from '@src/services/api'
-import { useAddLeagueModal, useAddTicketModal, useCurrentLeagueStore, useStep } from '@src/store/store'
+import {
+  useAddLeagueModal,
+  useAddTicketModal,
+  useCurrentLeagueStore,
+  useLeagueItemsStore,
+  useStep,
+} from '@src/store/store'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 const MainHeading: React.FC<IBaseProps> = () => {
-  
   const openAddLeague = useAddLeagueModal((store) => store.setIsOpen)
   const openAddTicket = useAddTicketModal((store) => store.setIsOpen)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [leagues, setLeagues] = useState<ILeague[]>([])
-  const setCurrentLeague = useCurrentLeagueStore(state=>state.setLeague);
-  const currentLeague = useCurrentLeagueStore(state=>state.league);
-  const clearCurrentLeague = useCurrentLeagueStore(state=>state.clearLeague);
+
+  const { leagueItems, setLeagueItems } = useLeagueItemsStore((state) => state)
+
+  const setCurrentLeague = useCurrentLeagueStore((state) => state.setLeague)
+  const currentLeague = useCurrentLeagueStore((state) => state.league)
+  const clearCurrentLeague = useCurrentLeagueStore((state) => state.clearLeague)
 
   const [curLeagueId, setCurLeagueId] = useState<number>()
 
@@ -22,7 +29,7 @@ const MainHeading: React.FC<IBaseProps> = () => {
     setIsLoading(true)
 
     const data: ILeagueRes = await Api.getLeagues(0, 100)
-    setLeagues(data.data)
+    setLeagueItems(data.data)
 
     setIsLoading(false)
   }
@@ -31,45 +38,46 @@ const MainHeading: React.FC<IBaseProps> = () => {
     loadLeagues()
   }, [])
 
-  const getLeague = async(leagueId: number)=>{
+  const getLeague = async (leagueId: number) => {
     setIsLoading(true)
 
     const data: ILeague = await Api.getOneLeague(leagueId)
 
-    setCurrentLeague(data);
+    setCurrentLeague(data)
 
-    setIsLoading(false);
-
+    setIsLoading(false)
   }
 
-  useEffect(()=>{
-
+  useEffect(() => {
     if (curLeagueId) {
       //* loading league detail
       //* then select league store
 
-      getLeague(curLeagueId);
+      getLeague(curLeagueId)
     } else {
       clearCurrentLeague()
+      setCurLeagueId(-1)
     }
-
-  },[curLeagueId])
+  }, [curLeagueId])
 
   return (
-    <div
-      data-testid="main-heading-h1"
-      className="flex flex-row items-center sm:flex-row justify-between sm:items-center w-100 text-xl text-gray-900 py-[22px] my-[30px] border-b border-solid border-b-[#A3A3A3]"
-    >
+    <Flex data-testid="main-heading-h1" p={3} justify={'space-between'} mb={5} alignItems="center" bg={'#011e28'}>
       <HStack>
-        <h5 className=" inline text-[18px] font-bold leading-[30px] ">Football League Bet</h5>
+        <Box>
+          <Text fontWeight={'bold'} fontSize={'15px'}>
+            Football League Bet
+          </Text>
+        </Box>
         <Select
           placeholder="Select League"
           value={curLeagueId}
+          size='sm'
+          rounded={5}
           onChange={(e) => {
             setCurLeagueId(parseInt(e.target.value))
           }}
         >
-          {leagues.map((one) => {
+          {leagueItems?.map((one) => {
             return (
               <option key={one.id} value={one.id}>
                 {one.name}
@@ -81,8 +89,22 @@ const MainHeading: React.FC<IBaseProps> = () => {
       <div className="min-w-[50px] text-right ml-1">
         <Button
           variant={'solid'}
+          colorScheme="orange"
+          mx={2}
+          size='sm'
+          onClick={() => {
+            loadLeagues()
+            clearCurrentLeague()
+            setCurLeagueId(-1)
+          }}
+        >
+          Refresh
+        </Button>
+        <Button
+          variant={'solid'}
           colorScheme="linkedin"
           mx={2}
+          size='sm'
           disabled={!currentLeague}
           onClick={() => {
             openAddTicket(true)
@@ -94,6 +116,7 @@ const MainHeading: React.FC<IBaseProps> = () => {
           variant={'solid'}
           colorScheme="teal"
           mx={2}
+          size='sm'
           onClick={() => {
             openAddLeague(true)
           }}
@@ -102,7 +125,7 @@ const MainHeading: React.FC<IBaseProps> = () => {
           Add League
         </Button>
       </div>
-    </div>
+    </Flex>
   )
 }
 

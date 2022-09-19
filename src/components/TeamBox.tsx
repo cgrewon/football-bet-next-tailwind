@@ -1,25 +1,28 @@
-import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react'
-import IBaseProps from '@src/interfaces/IBaseProps'
-import { IMatchRow } from '@src/interfaces/IMatchRow'
+import { Box, Text, VStack } from '@chakra-ui/react'
 import { ITeamBoxProps } from '@src/interfaces/ITeamBoxProps'
-import { useLeague } from '@src/store/store'
+
 import React from 'react'
-import { MatchRow } from './MatchRow'
+
 
 export const TeamBox: React.FC<ITeamBoxProps> = ({ team, onClick }) => {
   return (
-    <Box
-      mx={2}
-      minW={'60px'}
+    <VStack
+      
+      minW={'65px'}
+      h={'40px'}
+      textOverflow={'ellipsis'}
+      overflow={'hidden'}
       textAlign="center"
       textColor={team?.selected ? 'white' : 'black'}
-      background={team?.selected ? '#cb1c1c' : ''}
+      background={team?.selected ? '#9c1515' : ''}
       onClick={onClick}
       cursor="pointer"
       rounded={6}
+      pt={1}
+      color='white' 
     >
-      <Text>{team?.name}</Text>
-      <Text>{team?.score}</Text>
-    </Box>
+      <Text fontSize={'11px'}  lineHeight={1}>{team?.name}</Text>
+      <Text fontSize={'12px'} lineHeight={1}>{team?.score}</Text>
+    </VStack>
   )
 }

@@ -92,6 +92,7 @@ const useCurrentLeagueStore = create<ICurrentLeagueStore>((set) => ({
 export interface ICurrentTicketStore {
   ticket: ITicket | undefined
   setTicket: (ticket: ITicket) => void
+  clear: ()=>void
 }
 
 const useCurrentTicketStore = create<ICurrentTicketStore>((set) => ({
@@ -100,6 +101,23 @@ const useCurrentTicketStore = create<ICurrentTicketStore>((set) => ({
     set((state) => ({
       ticket: _new,
     })),
+
+    clear:()=>set(state=>({ticket: undefined}))
 }))
 
-export { useStep, useAddLeagueModal, useAddTicketModal, useLeague, useCurrentLeagueStore, useCurrentTicketStore }
+
+export interface ILeagueItemsStore {
+  leagueItems: ILeague[] | undefined
+  setLeagueItems: (list: ILeague[]) => void
+}
+
+const useLeagueItemsStore = create<ILeagueItemsStore>((set) => ({
+  leagueItems: undefined,
+  setLeagueItems: (list: ILeague[]) =>
+    set((state) => ({
+      leagueItems: list,
+    })),
+}))
+
+
+export { useStep, useAddLeagueModal, useAddTicketModal, useLeague, useCurrentLeagueStore, useCurrentTicketStore, useLeagueItemsStore }

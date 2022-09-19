@@ -4,8 +4,9 @@
 
 
 body{
-    background: #E5E5E5;
+    background: #020a0f !important;
     font-family: 'Roboto';
+    color: white !important;
 }
 
 h1, h2, h3, h4, h5, button {
