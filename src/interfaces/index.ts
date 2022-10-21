@@ -1,9 +1,9 @@
-export interface IPickTeam {
-  id: number
-  team_index: number
-  created_at: Date
-  updated_at: Date
-}
+// export interface IPickTeam {
+//   id: number
+//   team_index: number
+//   created_at: Date
+//   updated_at: Date
+// }
 
 export interface IMatch {
   id: number
@@ -76,9 +76,5 @@ export interface DeleteResult {
 }
 
 export function getPickTeamsForMatchFrom(ticket: ITicket, matchId: number): IPickTeam[] {
-
-  const _pickTeams =  ticket.pickTeams.filter(pickTeam=>pickTeam.match.id == matchId)
-
-  return _pickTeams
-
+  return ticket.pickTeams.filter((pickTeam) => pickTeam.match.id == matchId)
 }

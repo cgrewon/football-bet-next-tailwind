@@ -12,15 +12,14 @@ export interface IMatchRow {
 }
 
 export function getIMatchRowFrom(data: IMatch, pickTeams?: IPickTeam[]): IMatchRow {
-  
   console.log('data.date: ', data.date)
 
   const times = data.date.split('T')[1].split(':')
 
-  let teamSelectedlist = [false, false, false]
+  const teamSelectedlist = [false, false, false]
 
   if (pickTeams) {
-    for (let pt of pickTeams) {
+    for (const pt of pickTeams) {
       if (pt.match.id == data.id) {
         if (pt.team_index == 0) {
           teamSelectedlist[0] = true
@@ -33,14 +32,13 @@ export function getIMatchRowFrom(data: IMatch, pickTeams?: IPickTeam[]): IMatchR
     }
   }
 
-
   const dates = data.date.split('T')[0].split('-')
 
   return {
     id: data.id,
     leagueName: data.match_title,
-    date: dates[1]+'-'+dates[2],
-    time: times[0] + ':' + times[1],
+    date: `${dates[1]}-${dates[2]}`,
+    time: `${times[0]}:${times[1]}`,
     team1: {
       name: data.team1,
       score: data.team1_score,
@@ -62,7 +60,7 @@ export function getIMatchRowFrom(data: IMatch, pickTeams?: IPickTeam[]): IMatchR
 export function getICreateMatchFrom(data: IMatchRow): ICreateMatch {
   return {
     match_title: data.leagueName,
-    date: data.date + 'T' + data.time,
+    date: `${data.date}T${data.time}`,
     team1: data.team1?.name,
     team1_score: data.team1?.score,
     draw_score: data.draw?.score,

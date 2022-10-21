@@ -9,26 +9,21 @@ export const MatchRow: React.FC<IMatchRowProps> = ({ match, rowIndex, onTeamClic
   const matches = useLeague((store) => store.matches)
 
   return (
-    <Flex
-      alignItems={'center'}
-      justify="space-evenly"
-      py={0}
-      borderBottom={ '1px solid gray'}
-    >
-      <Box minWidth={'40px'} textAlign="center">
+    <Flex alignItems="center" justify="space-evenly" py={0} borderBottom="1px solid gray">
+      <Box minWidth="40px" textAlign="center">
         {rowIndex ? rowIndex + 1 : 1}
       </Box>
-      <Flex direction={'column'} alignItems="center" textAlign={'center'}>
-        <Text fontSize={'12px'}>{match?.leagueName}</Text>
-        <Text fontSize={'11px'}>{match?.date}</Text>
-        <Text fontSize={'13px'}>{match?.time}</Text>
+      <Flex direction="column" alignItems="center" textAlign="center">
+        <Text fontSize="12px">{match?.leagueName}</Text>
+        <Text fontSize="11px">{match?.date}</Text>
+        <Text fontSize="13px">{match?.time}</Text>
       </Flex>
 
       <TeamBox
         team={match?.team1}
         onClick={() => {
           if (match && match.team1) {
-            onTeamClick?.(match.id, 0, !match?.team1.selected)
+            onTeamClick?.(match.id, 0, !match.team1.selected)
           }
         }}
       />
@@ -36,7 +31,7 @@ export const MatchRow: React.FC<IMatchRowProps> = ({ match, rowIndex, onTeamClic
         team={match?.draw}
         onClick={() => {
           if (match && match.draw) {
-            onTeamClick?.(match.id, 1, !match?.draw.selected)
+            onTeamClick?.(match.id, 1, !match.draw.selected)
           }
         }}
       />
@@ -44,7 +39,7 @@ export const MatchRow: React.FC<IMatchRowProps> = ({ match, rowIndex, onTeamClic
         team={match?.team2}
         onClick={() => {
           if (match && match.team2) {
-            onTeamClick?.(match.id, 2, !match?.team2.selected)
+            onTeamClick?.(match.id, 2, !match.team2.selected)
           }
         }}
       />

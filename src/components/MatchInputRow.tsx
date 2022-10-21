@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Input, HStack, Box, VStack } from '@chakra-ui/react'
-import { Alert, AlertIcon, AlertTitle, AlertDescription } from '@chakra-ui/react'
+import { Button, Input, HStack, Box, VStack, Alert, AlertIcon, AlertTitle, AlertDescription } from '@chakra-ui/react'
 import { useLeague } from '@src/store/store'
 
 import { IMatchInputRowProps } from '@src/interfaces/IMatchInputRowProps'
@@ -16,7 +15,7 @@ const MatchInputRow: React.FC<IMatchInputRowProps> = (props) => {
   )
 
   const [title, setTitle] = useState<string | undefined>(props.match?.leagueName)
-  const [dateTime, setDateTime] = useState<string>(props.match?.date + 'T' + props.match?.time)
+  const [dateTime, setDateTime] = useState<string>(`${props.match?.date}T${props.match?.time}`)
 
   const matches = useLeague((store) => store.matches)
 
@@ -70,10 +69,10 @@ const MatchInputRow: React.FC<IMatchInputRowProps> = (props) => {
         <Input
           placeholder="Select Date and Time"
           size="sm"
-          type="datetime-local"          
+          type="datetime-local"
           rounded={5}
-          colorScheme='white'
-          color={'white'}
+          colorScheme="white"
+          color="white"
           value={dateTime}
           onChange={(e) => {
             console.log(e.target.value)
@@ -99,7 +98,7 @@ const MatchInputRow: React.FC<IMatchInputRowProps> = (props) => {
           />
           <Input
             placeholder="Score"
-            type={'number'}
+            type="number"
             size="sm"
             rounded={5}
             value={team1 ? team1.score : ''}
@@ -117,7 +116,7 @@ const MatchInputRow: React.FC<IMatchInputRowProps> = (props) => {
           <Input placeholder="Team Name" size="sm" rounded={5} value="Draw" disabled />
           <Input
             placeholder="Score"
-            type={'number'}
+            type="number"
             size="sm"
             rounded={5}
             value={draw ? draw.score : ''}
@@ -148,7 +147,7 @@ const MatchInputRow: React.FC<IMatchInputRowProps> = (props) => {
           />
           <Input
             placeholder="Score"
-            type={'number'}
+            type="number"
             size="sm"
             rounded={5}
             value={team2 ? team2.score : ''}
@@ -163,10 +162,10 @@ const MatchInputRow: React.FC<IMatchInputRowProps> = (props) => {
           />
         </VStack>
         <VStack>
-          <Button w={'80px'} colorScheme="teal" onClick={onAdd} size={'sm'}>
+          <Button w="80px" colorScheme="teal" onClick={onAdd} size="sm">
             {props.isEdit ? 'Save' : 'Add'}
           </Button>
-          <Button w={'80px'} colorScheme="red" onClick={onReset} size="sm">
+          <Button w="80px" colorScheme="red" onClick={onReset} size="sm">
             Reset
           </Button>
         </VStack>

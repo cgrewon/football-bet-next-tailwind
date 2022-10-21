@@ -2,14 +2,7 @@ import { Button, HStack, Select, Flex, Text, Box } from '@chakra-ui/react'
 import { ILeague, ILeagueRes } from '@src/interfaces'
 import IBaseProps from '@src/interfaces/IBaseProps'
 import Api from '@src/services/api'
-import {
-  useAddLeagueModal,
-  useAddTicketModal,
-  useCurrentLeagueStore,
-  useLeagueItemsStore,
-  useStep,
-} from '@src/store/store'
-import Image from 'next/image'
+import { useAddLeagueModal, useAddTicketModal, useCurrentLeagueStore, useLeagueItemsStore } from '@src/store/store'
 import React, { useEffect, useState } from 'react'
 
 const MainHeading: React.FC<IBaseProps> = () => {
@@ -42,39 +35,55 @@ const MainHeading: React.FC<IBaseProps> = () => {
     setIsLoading(true)
 
     const data: ILeague = await Api.getOneLeague(leagueId)
-
+    console.log('ccrrent league: s', data)
     setCurrentLeague(data)
-
     setIsLoading(false)
   }
 
+  // useEffect(()=>{
+  //   if (currentLeague) {
+  //     getLeague(currentLeague.id)
+  //   }
+  // }, [currentLeague])
+
   useEffect(() => {
+    console.log('loading curLeagueId at useEffect', curLeagueId)
     if (curLeagueId) {
       //* loading league detail
       //* then select league store
 
       getLeague(curLeagueId)
     } else {
-      clearCurrentLeague()
-      setCurLeagueId(-1)
+      // clearCurrentLeague()
+      // setCurLeagueId(-1)
     }
   }, [curLeagueId])
 
+  console.log('currentLeague : at main-heading', currentLeague)
+
   return (
-    <Flex data-testid="main-heading-h1" p={3} justify={'space-between'} mb={5} alignItems="center" bg={'#011e28'}>
+    <Flex data-testid="main-heading-h1" p={3} justify="space-between" mb={5} alignItems="center" bg="#011e28">
       <HStack>
         <Box>
-          <Text fontWeight={'bold'} fontSize={'15px'}>
+          <Text fontWeight="bold" fontSize="15px">
             Football League Bet
           </Text>
         </Box>
         <Select
           placeholder="Select League"
           value={curLeagueId}
-          size='sm'
+          // value={currentLeague?.id}
+          size="sm"
           rounded={5}
           onChange={(e) => {
             setCurLeagueId(parseInt(e.target.value))
+
+            // const _league = leagueItems?.find(one=>one.id == parseInt(e.target.value))
+            // if (_league){
+            //   setCurrentLeague(_league)
+            // } else {
+            //   clearCurrentLeague()
+            // }
           }}
         >
           {leagueItems?.map((one) => {
@@ -88,24 +97,28 @@ const MainHeading: React.FC<IBaseProps> = () => {
       </HStack>
       <div className="min-w-[50px] text-right ml-1">
         <Button
-          variant={'solid'}
+          variant="solid"
           colorScheme="orange"
           mx={2}
-          size='sm'
+          size="sm"
           onClick={() => {
-            loadLeagues()
-            clearCurrentLeague()
-            setCurLeagueId(-1)
+            if (curLeagueId) {
+              getLeague(curLeagueId)
+            }
+
+            // loadLeagues()
+            // clearCurrentLeague()
+            // setCurLeagueId(-1)
           }}
         >
           Refresh
         </Button>
         <Button
-          variant={'solid'}
+          variant="solid"
           colorScheme="linkedin"
           mx={2}
-          size='sm'
-          disabled={!currentLeague}
+          size="sm"
+          disabled={!curLeagueId}
           onClick={() => {
             openAddTicket(true)
           }}
@@ -113,10 +126,10 @@ const MainHeading: React.FC<IBaseProps> = () => {
           Add Ticket
         </Button>
         <Button
-          variant={'solid'}
+          variant="solid"
           colorScheme="teal"
           mx={2}
-          size='sm'
+          size="sm"
           onClick={() => {
             openAddLeague(true)
           }}
